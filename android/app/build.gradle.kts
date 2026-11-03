@@ -8,7 +8,12 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-val keystorePropertiesFile = rootProject.file("key.properties")
+val keystorePropertiesFile = if (rootProject.file("key.properties").exists()) {
+    rootProject.file("key.properties")
+} else {
+    file("key.properties")
+}
+
 val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
@@ -29,10 +34,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.bengkel.belanjaku"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -43,8 +45,15 @@ android {
         create("release") {
             keyAlias = keystoreProperties.getProperty("keyAlias") ?: "belanjaku"
             keyPassword = keystoreProperties.getProperty("keyPassword") ?: "belanjaku2026"
-            val storeFilePath = keystoreProperties.getProperty("storeFile") ?: "belanjaku-release.jks"
-            storeFile = file(storeFilePath)
+            val storeProp = keystoreProperties.getProperty("storeFile") ?: "belanjaku-release.jks"
+            val candidates = listOf(
+                file(storeProp),
+                file("belanjaku-release.jks"),
+                rootProject.file(storeProp),
+                rootProject.file("app/$storeProp"),
+                rootProject.file("app/belanjaku-release.jks")
+            )
+            storeFile = candidates.firstOrNull { it.exists() } ?: file("belanjaku-release.jks")
             storePassword = keystoreProperties.getProperty("storePassword") ?: "belanjaku2026"
         }
     }

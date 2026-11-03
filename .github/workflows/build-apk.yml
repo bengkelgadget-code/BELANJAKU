@@ -42,10 +42,12 @@ jobs:
           if [ ! -f "android/app/belanjaku-release.jks" ]; then
             keytool -genkeypair -v -keystore android/app/belanjaku-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias belanjaku -storepass belanjaku2026 -keypass belanjaku2026 -dname "CN=BELANJAKU, OU=Mobile, O=Bengkel, L=Samarinda, ST=Kaltim, C=ID"
           fi
+          cp android/app/belanjaku-release.jks android/belanjaku-release.jks
           echo "storePassword=belanjaku2026" > android/key.properties
           echo "keyPassword=belanjaku2026" >> android/key.properties
           echo "keyAlias=belanjaku" >> android/key.properties
           echo "storeFile=belanjaku-release.jks" >> android/key.properties
+          cp android/key.properties android/app/key.properties
 
       - name: Get Dependencies
         run: flutter pub get
@@ -59,7 +61,7 @@ jobs:
           flutter test --reporter expanded > test_output.log 2>&1
           TEST_EXIT=$?
           if [ $TEST_EXIT -ne 0 ]; then
-            grep -E "FAIL|Expected:|Actual:|Which:|EXCEPTION|Error" test_output.log | head -n 20 | while read -r line; do
+            grep -E "FAIL|Expected:|Actual:|Which:|EXCEPTION|Error" test_output.log | head -n 25 | while read -r line; do
               echo "::error title=Test Failure::$line"
             done
             cat test_output.log
@@ -67,7 +69,17 @@ jobs:
           fi
 
       - name: Build APK (Release)
-        run: flutter build apk --release
+        run: |
+          set +e
+          flutter build apk --release > build_output.log 2>&1
+          BUILD_EXIT=$?
+          if [ $BUILD_EXIT -ne 0 ]; then
+            grep -E "FAILURE|FAILED|Error:|error:|Exception:|Caused by:" build_output.log | tail -n 25 | while read -r line; do
+              echo "::error title=Build Failure::$line"
+            done
+            tail -n 120 build_output.log
+            exit $BUILD_EXIT
+          fi
 
       - name: Upload APK as Artifact
         uses: actions/upload-artifact@v4
