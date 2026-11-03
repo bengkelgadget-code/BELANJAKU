@@ -1,6 +1,6 @@
 # PRD — Aplikasi Pencatatan Pemasukan & Pengeluaran + Scan Nota
 
-**Nama kerja:** CatatUang (nama final bisa diganti, jangan hardcode brand di logika inti)
+**Nama:** BELANJAKU (diganti dari nama kerja CatatUang, 3 Nov 2026 22:13 WITA — jangan hardcode brand di logika inti, pakai satu konstanta nama)
 **Versi PRD:** v1.0 — 3 November 2026
 **Dibuat untuk:** bengkel, dikerjakan Gemini (Flutter)
 **Platform:** Flutter — Android dulu (prioritas), iOS menyusul dari codebase yang sama
@@ -522,7 +522,7 @@ Gemini wajib membuka & meniru pola (bukan menjiplak aset) dari referensi ini seb
 
 | Pertanyaan | Default yang dipakai Gemini bila user belum jawab |
 |---|---|
-| Nama aplikasi final? | Pakai nama kerja "CatatUang" di UI, gampang diganti lewat satu konstanta |
+| Nama aplikasi final? | Pakai "BELANJAKU" di UI, gampang diganti lewat satu konstanta |
 | Single user atau keluarga? | Single user (MVP) |
 | Cloud sync? | Tidak — lokal saja |
 | Target tabungan & utang di MVP? | Tidak — v1.1 |
@@ -575,3 +575,8 @@ Hasil yang diharapkan parser: 4 item, kategori = Sembako, Sembako, Sembako, Maka
 - Alasan: kuota free tier Supabase user sudah terpakai 2 project aktif, user tidak mau bikin email/project baru lagi.
 - **MVP tidak berubah:** tetap single-user, local-first, offline penuh, tanpa login cloud. Sync baru dikerjakan di fase v2, dengan pola yang sudah disebut di pembahasan: SQLite lokal tetap sebagai cache offline + antrean sync, tabel sync ditambah di project SIWARUNG yang sama (bukan project baru), dengan user_id, soft-delete, updatedAt, dan aturan konflik terakhir-diubah-menang.
 - **Yang TIDAK boleh dilakukan Gemini dari addendum ini:** jangan mulai coding sync sekarang, jangan minta atau menyimpan anon key / service key Supabase di repo atau di chat, dan jangan ganti MVP jadi wajib login cloud. Kunci/secret Supabase, kalau nanti dibutuhkan, diisi lewat jalur aman (env / secure storage), bukan chat.
+
+## Addendum — 3 November 2026, 22:13 WITA (ganti nama, konfirmasi user)
+
+- **Nama aplikasi diganti dari nama kerja CatatUang menjadi BELANJAKU.** Ini nama yang sudah dipakai Gemini di hasil kerjanya (kartu "Belanjaku Plan"), jadi dokumen ini diselaraskan supaya tidak ada dua nama.
+- Semua acuan nama di dokumen ini sudah diubah ke BELANJAKU, termasuk package contoh di BUILD-SPEC (`com.bengkel.belanjaku`). Repo GitHub untuk BELANJAKU **belum** ditentukan di addendum ini — jangan diasumsikan ada repo hanya karena namanya sudah final.
