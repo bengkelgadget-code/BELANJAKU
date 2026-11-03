@@ -1,2 +1,0 @@
-# BELANJAKU
-pencatatan keuangan
