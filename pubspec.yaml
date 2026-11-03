@@ -54,8 +54,8 @@ dependencies:
   share_plus: ^13.3.1
   file_picker: ^13.3.2
   crypto: ^3.0.8
-  lucide_icons: ^0.257.0
   google_mlkit_text_recognition: ^0.16.0
+  lucide_icons_flutter: ^4.0.1
 
 dev_dependencies:
   flutter_test:
