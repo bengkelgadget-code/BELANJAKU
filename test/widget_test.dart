@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:belanjaku/features/transactions/widgets/numpad_widget.dart';
 
 void main() {
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    GoogleFonts.config.allowRuntimeFetching = false;
+  });
+
   testWidgets('NumpadWidget interacts and fires callbacks', (WidgetTester tester) async {
     String pressedDigit = '';
     bool deleted = false;

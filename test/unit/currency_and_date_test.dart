@@ -1,8 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:belanjaku/core/utils/currency_formatter.dart';
 import 'package:belanjaku/core/utils/date_formatter.dart';
 
 void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await initializeDateFormatting('id_ID', null);
+  });
+
   group('CurrencyFormatter Tests (§8.4)', () {
     test('Formats positive nominal correctly with dots and Rp', () {
       expect(CurrencyFormatter.format(1250000), 'Rp 1.250.000');
