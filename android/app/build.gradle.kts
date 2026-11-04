@@ -45,9 +45,19 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties.getProperty("keyAlias")
-            keyPassword = keystoreProperties.getProperty("keyPassword")
-            val storeProp = keystoreProperties.getProperty("storeFile") ?: "upload-keystore.jks"
+            val alias = keystoreProperties.getProperty("keyAlias")?.trim()
+            val pass = keystoreProperties.getProperty("storePassword")?.trim()
+            val keyPass = keystoreProperties.getProperty("keyPassword")?.trim() ?: pass
+            val type = keystoreProperties.getProperty("storeType")?.trim()
+
+            keyAlias = alias
+            storePassword = pass
+            keyPassword = keyPass
+            if (!type.isNullOrBlank()) {
+                storeType = type
+            }
+
+            val storeProp = keystoreProperties.getProperty("storeFile")?.trim() ?: "upload-keystore.jks"
             val candidates = listOf(
                 file(storeProp),
                 file("upload-keystore.jks"),
@@ -56,7 +66,6 @@ android {
                 rootProject.file("app/upload-keystore.jks")
             )
             storeFile = candidates.firstOrNull { it.exists() } ?: file(storeProp)
-            storePassword = keystoreProperties.getProperty("storePassword")
         }
     }
 
