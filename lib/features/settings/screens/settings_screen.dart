@@ -7,6 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/services/update_service.dart';
+import '../../../core/widgets/update_dialog.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../wallets/models/wallet.dart';
 import '../../wallets/providers/wallet_providers.dart';
@@ -37,6 +39,46 @@ final userNameProvider = NotifierProvider<UserNameNotifier, String>(
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  Future<void> _checkUpdateManually(BuildContext context) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            ),
+            SizedBox(width: 12),
+            Text('Memeriksa pembaruan di GitHub...'),
+          ],
+        ),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    final info = await UpdateService.checkForUpdate();
+    if (!context.mounted) return;
+
+    if (info == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tidak dapat terhubung ke server GitHub.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    } else if (info.hasUpdate) {
+      UpdateDialog.show(context, info);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Aplikasi sudah versi terbaru (Build ${AppConstants.buildNumber}).'),
+          backgroundColor: AppColors.primaryLight,
+        ),
+      );
+    }
+  }
 
   Future<void> _editUserName(BuildContext context, WidgetRef ref) async {
     final currentName = ref.read(userNameProvider);
@@ -433,7 +475,7 @@ class SettingsScreen extends ConsumerWidget {
                             style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            'Versi ${AppConstants.appVersion}',
+                            'Versi ${AppConstants.appVersion} (Build ${AppConstants.buildNumber})',
                             style: const TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ],
@@ -445,6 +487,18 @@ class SettingsScreen extends ConsumerWidget {
                     'Aplikasi pencatatan keuangan pribadi dan scan struk otomatis.\n'
                     '100% Local-First & Offline. Foto dan data keuangan tersimpan aman di perangkat Anda.',
                     style: TextStyle(fontSize: 13, height: 1.4),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(LucideIcons.refreshCw, size: 16),
+                      label: const Text('Periksa Pembaruan (OTA)'),
+                      onPressed: () => _checkUpdateManually(context),
+                    ),
                   ),
                 ],
               ),

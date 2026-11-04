@@ -1,7 +1,12 @@
 class AppConstants {
   static const String appName = 'BELANJAKU';
   static const String appVersion = '1.0.0';
+  static const int buildNumber = 10;
   static const String appTagline = 'Belanja, foto struk, beres — semua tercatat rapi';
+
+  // GitHub Repository for OTA Updates
+  static const String githubOwner = 'bengkelgadget-code';
+  static const String githubRepo = 'BELANJAKU';
 
   static const String defaultUserName = 'boy';
   static const String defaultCurrency = 'IDR';

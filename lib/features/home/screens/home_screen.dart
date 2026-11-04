@@ -15,9 +15,38 @@ import '../../settings/screens/settings_screen.dart';
 import '../../transactions/providers/transaction_providers.dart';
 import '../../wallets/providers/wallet_providers.dart';
 import '../../wallets/widgets/transfer_dialog.dart';
+import '../../../core/services/update_service.dart';
+import '../../../core/widgets/update_dialog.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  static bool _hasCheckedUpdate = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_hasCheckedUpdate) {
+      _hasCheckedUpdate = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkOtaUpdate();
+      });
+    }
+  }
+
+  Future<void> _checkOtaUpdate() async {
+    try {
+      final info = await UpdateService.checkForUpdate();
+      if (mounted && info != null && info.hasUpdate) {
+        UpdateDialog.show(context, info);
+      }
+    } catch (_) {}
+  }
 
   String _getGreeting(String userName) {
     final hour = DateTime.now().hour;
@@ -33,7 +62,7 @@ class HomeScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final userName = ref.watch(userNameProvider);
     final totalBalanceAsync = ref.watch(totalBalanceProvider);
