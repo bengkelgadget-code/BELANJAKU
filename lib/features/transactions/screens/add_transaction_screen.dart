@@ -15,6 +15,8 @@ import '../../categories/providers/category_providers.dart';
 import '../../wallets/models/wallet.dart';
 import '../../wallets/providers/wallet_providers.dart';
 import '../models/transaction.dart';
+import '../../budgets/providers/budget_providers.dart';
+import '../../reports/providers/report_providers.dart';
 import '../providers/transaction_providers.dart';
 import '../widgets/numpad_widget.dart';
 
@@ -166,35 +168,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     ref.invalidate(monthSummaryProvider);
     ref.invalidate(walletsProvider);
     ref.invalidate(totalBalanceProvider);
+    ref.invalidate(reportCategorySharesProvider);
+    ref.invalidate(budgetAlertCountProvider);
 
     if (!mounted) return;
-
-    // Snackbar with Undo (Urungkan) for 4 seconds (§6.1)
-    final catName = _selectedCategory!.name;
-    final formattedAmount = CurrencyFormatter.format(_currentAmount);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Tersimpan — $catName $formattedAmount'),
-        duration: const Duration(seconds: 4),
-        action: SnackBarAction(
-          label: 'Urungkan',
-          textColor: Colors.amberAccent,
-          onPressed: () async {
-            if (isEdit) {
-              await repo.updateTransaction(widget.existingItem!);
-            } else {
-              await repo.deleteTransaction(tx.id);
-            }
-            ref.invalidate(transactionListProvider);
-            ref.invalidate(recentTransactionsProvider);
-            ref.invalidate(monthSummaryProvider);
-            ref.invalidate(walletsProvider);
-            ref.invalidate(totalBalanceProvider);
-          },
-        ),
-      ),
-    );
 
     context.pop();
   }

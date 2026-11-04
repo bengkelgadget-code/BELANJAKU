@@ -19,6 +19,7 @@ import '../../../core/services/update_service.dart';
 import '../../../core/widgets/update_dialog.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
+  static bool enableOtaCheck = true;
   const HomeScreen({super.key});
 
   @override
@@ -31,7 +32,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    if (!_hasCheckedUpdate) {
+    if (!_hasCheckedUpdate && HomeScreen.enableOtaCheck) {
       _hasCheckedUpdate = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _checkOtaUpdate();
@@ -217,7 +218,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         'Rp ...',
                         style: TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold),
                       ),
-                      error: (_, _) => const Text('Rp 0', style: TextStyle(color: Colors.white)),
+                      error: (err, _) => Row(
+                        children: [
+                          const Text(
+                            'Gagal memuat saldo',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(LucideIcons.refreshCw, color: Colors.white, size: 16),
+                            onPressed: () => ref.invalidate(totalBalanceProvider),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 18),
                     // 3 Chips: Masuk bulan ini (hijau), Keluar bulan ini (oranye/merah), Sisa (netral)
@@ -242,7 +255,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         );
                       },
                       loading: () => const SizedBox.shrink(),
-                      error: (_, _) => const SizedBox.shrink(),
+                      error: (_, _) => Row(
+                        children: [
+                          const Text(
+                            'Gagal memuat ringkasan',
+                            style: TextStyle(color: Colors.white70, fontSize: 11),
+                          ),
+                          const SizedBox(width: 4),
+                          IconButton(
+                            icon: const Icon(LucideIcons.refreshCw, color: Colors.white70, size: 14),
+                            onPressed: () => ref.invalidate(monthSummaryProvider),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -318,7 +343,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   );
                 },
                 loading: () => const SizedBox(height: 76),
-                error: (_, _) => const SizedBox.shrink(),
+                error: (err, _) => Container(
+                  height: 60,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.surfaceElevatedDark : AppColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Gagal memuat dompet',
+                        style: TextStyle(fontSize: 12, color: AppColors.danger),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () => ref.invalidate(walletsProvider),
+                        child: const Text('Coba Lagi', style: TextStyle(fontSize: 12)),
+                      ),
+                    ],
+                  ),
+                ),
               ),
 
               const SizedBox(height: 16),
@@ -547,8 +594,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Text('Error: $e'),
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (err, _) => Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Gagal memuat transaksi terakhir',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.danger,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '$err',
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton.icon(
+                          icon: const Icon(LucideIcons.refreshCw, size: 16),
+                          label: const Text('Coba Lagi'),
+                          onPressed: () => ref.invalidate(recentTransactionsProvider),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
 
               const SizedBox(height: 32),

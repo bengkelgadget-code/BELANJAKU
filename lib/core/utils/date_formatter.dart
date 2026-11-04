@@ -1,10 +1,38 @@
 import 'package:intl/intl.dart';
 
 class DateFormatter {
-  static final DateFormat _dayMonthYear = DateFormat('d MMM yyyy', 'id_ID');
-  static final DateFormat _dayOfWeekDayMonth = DateFormat('EEEE, d MMM yyyy', 'id_ID');
-  static final DateFormat _monthYear = DateFormat('MMMM yyyy', 'id_ID');
-  static final DateFormat _timeOnly = DateFormat('HH:mm', 'id_ID');
+  static DateFormat get _dayMonthYear {
+    try {
+      return DateFormat('d MMM yyyy', 'id_ID');
+    } catch (_) {
+      return DateFormat('d MMM yyyy');
+    }
+  }
+
+  static DateFormat get _dayOfWeekDayMonth {
+    try {
+      return DateFormat('EEEE, d MMM yyyy', 'id_ID');
+    } catch (_) {
+      return DateFormat('EEEE, d MMM yyyy');
+    }
+  }
+
+  static DateFormat get _monthYear {
+    try {
+      return DateFormat('MMMM yyyy', 'id_ID');
+    } catch (_) {
+      return DateFormat('MMMM yyyy');
+    }
+  }
+
+  static DateFormat get _timeOnly {
+    try {
+      return DateFormat('HH:mm', 'id_ID');
+    } catch (_) {
+      return DateFormat('HH:mm');
+    }
+  }
+
   static final DateFormat _isoDate = DateFormat('yyyy-MM-dd');
   static final DateFormat _isoMonth = DateFormat('yyyy-MM');
 

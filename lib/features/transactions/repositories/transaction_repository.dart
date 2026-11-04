@@ -106,7 +106,7 @@ class TransactionRepository {
         w.name AS wallet_name
       FROM transactions t
       LEFT JOIN categories c ON t.category_id = c.id
-      JOIN wallets w ON t.wallet_id = w.id
+      LEFT JOIN wallets w ON t.wallet_id = w.id
       $whereClause
       ORDER BY t.date DESC, t.created_at DESC
       $limitClause
@@ -129,7 +129,7 @@ class TransactionRepository {
         w.name AS wallet_name
       FROM transactions t
       LEFT JOIN categories c ON t.category_id = c.id
-      JOIN wallets w ON t.wallet_id = w.id
+      LEFT JOIN wallets w ON t.wallet_id = w.id
       WHERE t.id = ?
     ''';
     final results = await db.rawQuery(query, [id]);
