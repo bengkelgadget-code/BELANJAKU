@@ -39,15 +39,17 @@ jobs:
 
       - name: Configure Release Keystore
         run: |
-          if [ ! -f "android/app/belanjaku-release.jks" ]; then
-            keytool -genkeypair -v -keystore android/app/belanjaku-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias belanjaku -storepass belanjaku2026 -keypass belanjaku2026 -dname "CN=BELANJAKU, OU=Mobile, O=Bengkel, L=Samarinda, ST=Kaltim, C=ID"
-          fi
-          cp android/app/belanjaku-release.jks android/belanjaku-release.jks
-          echo "storePassword=belanjaku2026" > android/key.properties
-          echo "keyPassword=belanjaku2026" >> android/key.properties
-          echo "keyAlias=belanjaku" >> android/key.properties
-          echo "storeFile=belanjaku-release.jks" >> android/key.properties
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+          echo "storePassword=$ANDROID_KEYSTORE_PASSWORD" > android/key.properties
+          echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/key.properties
+          echo "storeFile=upload-keystore.jks" >> android/key.properties
           cp android/key.properties android/app/key.properties
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Get Dependencies
         run: flutter pub get
@@ -98,11 +100,17 @@ jobs:
           tag_name: "v1.0.0-build.${{ github.run_number }}"
           name: "BELANJAKU v1.0.0 (Build ${{ github.run_number }})"
           body: |
+            ## ⚠️ PEMBERITAHUAN PENTING MIGRASI KE-BUILD 10:
+            > **Kunci signing diganti.** APK ini **TIDAK BISA** update timpa APK Build 9.  
+            > **Backup data dulu** (export CSV / backup ZIP di aplikasi), **uninstall APK lama**, baru install APK baru.
+
+            ---
+
             ## 🛍️ BELANJAKU — Aplikasi Pencatatan Keuangan Pribadi & Scan Struk
             - **Versi:** 1.0.0
             - **Build Number:** ${{ github.run_number }}
             - **Commit SHA:** ${{ github.sha }}
-            - **Signing:** Release Keystore (Bukan Debug)
+            - **Signing:** Release Keystore Baru (GitHub Secrets)
             - **Fitur Utama:**
               - Input cepat dengan custom numpad
               - Scan struk otomatis on-device OCR (Indomaret, Alfamart, SPBU, dsb)

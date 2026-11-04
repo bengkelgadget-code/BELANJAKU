@@ -7,7 +7,10 @@ gradle-wrapper.jar
 GeneratedPluginRegistrant.java
 .cxx/
 
-# General keystores
+# General keystores & Signing Secrets
+*.keystore
 **/*.keystore
-!belanjaku-release.jks
-!key.properties
+*.jks
+**/*.jks
+key.properties
+**/key.properties

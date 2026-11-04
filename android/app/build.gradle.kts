@@ -45,18 +45,18 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties.getProperty("keyAlias") ?: "belanjaku"
-            keyPassword = keystoreProperties.getProperty("keyPassword") ?: "belanjaku2026"
-            val storeProp = keystoreProperties.getProperty("storeFile") ?: "belanjaku-release.jks"
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+            val storeProp = keystoreProperties.getProperty("storeFile") ?: "upload-keystore.jks"
             val candidates = listOf(
                 file(storeProp),
-                file("belanjaku-release.jks"),
+                file("upload-keystore.jks"),
                 rootProject.file(storeProp),
                 rootProject.file("app/$storeProp"),
-                rootProject.file("app/belanjaku-release.jks")
+                rootProject.file("app/upload-keystore.jks")
             )
-            storeFile = candidates.firstOrNull { it.exists() } ?: file("belanjaku-release.jks")
-            storePassword = keystoreProperties.getProperty("storePassword") ?: "belanjaku2026"
+            storeFile = candidates.firstOrNull { it.exists() } ?: file(storeProp)
+            storePassword = keystoreProperties.getProperty("storePassword")
         }
     }
 
