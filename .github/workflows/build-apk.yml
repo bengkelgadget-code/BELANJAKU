@@ -38,27 +38,7 @@ jobs:
           cache: true
 
       - name: Configure Release Keystore
-        run: |
-          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
-            echo "::error title=Missing Secret::Secret ANDROID_KEYSTORE_BASE64 is empty or not set in GitHub Settings!"
-            exit 1
-          fi
-          if [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
-            echo "::error title=Missing Secrets::Signing secrets (PASSWORD or ALIAS) are empty or not set in GitHub Settings!"
-            exit 1
-          fi
-          echo "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > android/app/upload-keystore.jks
-          CLEAN_STORE_PASS=$(echo -n "$ANDROID_KEYSTORE_PASSWORD" | tr -d '\r\n ')
-          CLEAN_KEY_PASS=$(echo -n "$ANDROID_KEY_PASSWORD" | tr -d '\r\n ')
-          CLEAN_ALIAS=$(echo -n "$ANDROID_KEY_ALIAS" | tr -d '\r\n ')
-          echo "storePassword=$CLEAN_STORE_PASS" > android/key.properties
-          echo "keyPassword=$CLEAN_KEY_PASS" >> android/key.properties
-          echo "keyAlias=$CLEAN_ALIAS" >> android/key.properties
-          echo "storeFile=upload-keystore.jks" >> android/key.properties
-          echo "storeType=PKCS12" >> android/key.properties
-          cp android/key.properties android/app/key.properties
-          echo "Keystore decoded successfully. Size: $(wc -c < android/app/upload-keystore.jks) bytes"
-          keytool -list -keystore android/app/upload-keystore.jks -storepass "$CLEAN_STORE_PASS" -alias "$CLEAN_ALIAS"
+        run: python3 .github/scripts/decode_keystore.py
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
