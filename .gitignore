@@ -52,5 +52,7 @@ app.*.map.json
 **/*.keystore
 key.properties
 **/key.properties
+github_secrets_info.txt
+keystore_base64_only.txt
 test_output.log
 build_output.log
