@@ -1,7 +1,7 @@
 class AppConstants {
   static const String appName = 'BELANJAKU';
   static const String appVersion = '1.0.0';
-  static const int buildNumber = 10;
+  static const int buildNumber = 15;
   static const String appTagline = 'Belanja, foto struk, beres — semua tercatat rapi';
 
   // GitHub Repository for OTA Updates

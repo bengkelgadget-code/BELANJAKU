@@ -64,10 +64,10 @@ jobs:
             exit $TEST_EXIT
           fi
 
-      - name: Build APK (Release)
+      - name: Build APK (Release Split per ABI)
         run: |
           set +e
-          flutter build apk --release > build_output.log 2>&1
+          flutter build apk --release --split-per-abi > build_output.log 2>&1
           BUILD_EXIT=$?
           if [ $BUILD_EXIT -ne 0 ]; then
             awk '/\* What went wrong:/,/\* Try:/' build_output.log | while read -r line; do
@@ -79,12 +79,14 @@ jobs:
             tail -n 120 build_output.log
             exit $BUILD_EXIT
           fi
+          echo "Daftar file APK yang dihasilkan:"
+          ls -lh build/app/outputs/flutter-apk/app-*-release.apk
 
-      - name: Upload APK as Artifact
+      - name: Upload Split APKs as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BELANJAKU-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: BELANJAKU-split-apks
+          path: build/app/outputs/flutter-apk/app-*-release.apk
           retention-days: 30
 
       - name: Publish GitHub Release
@@ -94,9 +96,15 @@ jobs:
           tag_name: "v1.0.0-build.${{ github.run_number }}"
           name: "BELANJAKU v1.0.0 (Build ${{ github.run_number }})"
           body: |
-            ## ⚠️ PEMBERITAHUAN PENTING MIGRASI KE-BUILD 10:
-            > **Kunci signing diganti.** APK ini **TIDAK BISA** update timpa APK Build 9.  
-            > **Backup data dulu** (export CSV / backup ZIP di aplikasi), **uninstall APK lama**, baru install APK baru.
+            ## 📱 PANDUAN MEMILIH FILE APK (Optimasi Ukuran Split ABI):
+            > **Pilih SATU file sesuai HP kamu, jangan install ketiganya:**
+            > - **`app-arm64-v8a-release.apk`** = HP Android modern (hampir semua HP baru keluaran 2018 ke atas) (~40 MB)
+            > - **`app-armeabi-v7a-release.apk`** = HP Android lama / arsitektur 32-bit (~35 MB)
+            > - **`app-x86_64-release.apk`** = Khusus emulator Android di PC / perangkat x86_64
+            >
+            > *💡 Tips:* Kalau ragu, coba **`app-arm64-v8a-release.apk`** dulu; jika installer Android menolak, baru coba `app-armeabi-v7a-release.apk`.
+            >
+            > *🔄 Update Info:* Seharusnya bisa langsung update menimpa Build 14 karena kunci signing sama dan versionCode naik (Build ${{ github.run_number }}). Jika installer menolak karena konflik sistem lama, backup dulu (export CSV / backup ZIP di aplikasi), uninstall APK lama, lalu install APK baru ini.
 
             ---
 
@@ -105,6 +113,7 @@ jobs:
             - **Build Number:** ${{ github.run_number }}
             - **Commit SHA:** ${{ github.sha }}
             - **Signing:** Release Keystore Baru (GitHub Secrets)
+            - **Optimasi Ukuran:** Split per ABI (turun drastis dari 101 MB menjadi ~35–40 MB)
             - **Fitur Utama:**
               - Input cepat dengan custom numpad
               - Scan struk otomatis on-device OCR (Indomaret, Alfamart, SPBU, dsb)
@@ -112,7 +121,8 @@ jobs:
               - Anggaran bulanan dengan alert 80% & 100%
               - Grafik donat & tren pengeluaran harian
               - Export CSV & backup-restore ZIP lokal
-          files: build/app/outputs/flutter-apk/app-release.apk
+              - In-app OTA Update checker via GitHub Releases
+          files: build/app/outputs/flutter-apk/app-*-release.apk
           generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

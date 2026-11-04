@@ -51,16 +51,28 @@ class UpdateService {
       final body = data['body'] as String? ?? '';
       final publishedAt = data['published_at'] as String? ?? '';
 
-      // Find app-release.apk asset
+      // Find suitable APK asset (prioritize arm64-v8a for modern phones, fallback to first .apk or html_url)
       String? apkUrl;
       final assets = data['assets'] as List<dynamic>?;
       if (assets != null) {
+        // Priority 1: arm64-v8a for modern Android phones
         for (final item in assets) {
           final asset = item as Map<String, dynamic>;
           final name = asset['name'] as String? ?? '';
-          if (name.endsWith('.apk')) {
+          if (name.contains('arm64-v8a') && name.endsWith('.apk')) {
             apkUrl = asset['browser_download_url'] as String?;
             break;
+          }
+        }
+        // Priority 2: any .apk asset
+        if (apkUrl == null) {
+          for (final item in assets) {
+            final asset = item as Map<String, dynamic>;
+            final name = asset['name'] as String? ?? '';
+            if (name.endsWith('.apk')) {
+              apkUrl = asset['browser_download_url'] as String?;
+              break;
+            }
           }
         }
       }
